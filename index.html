@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#080709">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motion Architect</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap');
+
+  :root {
+    --bg:     #080709;
+    --panel:  #0e0c11;
+    --border: #1e1b25;
+    --border2:#2e2a3a;
+    --text:   #ccc8d8;
+    --muted:  #5a5468;
+    --dim:    #231f2e;
+    --orange: #fb923c;
+    --amber:  #fdba74;
+    --violet: #a78bfa;
+    --mono:   'DM Mono', monospace;
+    --serif:  'DM Serif Display', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 80px;
+  }
+
+  /* grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  header { text-align: center; margin-bottom: 40px; position: relative; z-index: 1; }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: .5em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(36px, 7vw, 58px);
+    color: #fff;
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  h1 span { color: var(--orange); }
+
+  .subtitle {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+
+  .counter {
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: .25em;
+    margin-top: 8px;
+  }
+
+  /* card */
+  .card {
+    width: 100%;
+    max-width: 660px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--dim);
+    font-size: 11px;
+    letter-spacing: .06em;
+    line-height: 2;
+  }
+
+  .empty-icon { font-size: 28px; margin-bottom: 14px; opacity: .25; display: block; }
+
+  /* field rows */
+  .fields { display: flex; flex-direction: column; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-row:last-child { border-bottom: none; }
+  .field-row.is-locked  { background: #0c0a10; }
+
+  .field-label {
+    font-size: 9px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 3px;
+  }
+
+  .field-value {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .field-actions { display: flex; gap: 4px; align-items: center; }
+
+  .reroll-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 6px;
+    line-height: 1;
+    transition: color .15s;
+    flex-shrink: 0;
+  }
+  .reroll-btn:hover { color: var(--orange); }
+
+  .lock-btn {
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 3px;
+    line-height: 1;
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+  .lock-btn:hover  { color: var(--muted); }
+  .lock-btn.locked { color: var(--violet); text-shadow: 0 0 6px var(--violet); }
+
+  /* prompt area */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  .prompt-label {
+    font-size: 9px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .copy-hint { font-size: 9px; color: var(--dim); letter-spacing: .1em; margin-bottom: 8px; }
+
+  .prompt-textarea {
+    width: 100%;
+    background: #060508;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.9;
+    padding: 12px;
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 14px;
+    word-break: break-word;
+    cursor: pointer;
+  }
+  .prompt-textarea:focus { outline: none; border-color: var(--orange); }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    padding: 8px 20px;
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: all .2s;
+  }
+  .copy-btn:hover  { border-color: var(--orange); color: var(--orange); }
+  .copy-btn.copied { border-color: #4ade80; color: #4ade80; }
+
+  /* generate */
+  .generate-btn {
+    width: 100%;
+    max-width: 660px;
+    background: var(--orange);
+    color: #000;
+    font-weight: 700;
+    border: none;
+    padding: 20px;
+    font-size: 12px;
+    letter-spacing: .4em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: all .2s;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .generate-btn:hover  { filter: brightness(1.1); transform: translateY(-1px); }
+  .generate-btn:active { transform: translateY(0); }
+
+  .save-btn {
+    width: 100%;
+    max-width: 660px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 12px;
+    font-size: 10px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: all .2s;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .save-btn:hover { border-color: var(--border2); color: var(--text); }
+
+  /* saved */
+  .saved-section { width: 100%; max-width: 660px; position: relative; z-index: 1; }
+
+  .saved-title {
+    font-size: 10px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .saved-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 11px 14px;
+    margin-bottom: 7px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    cursor: pointer;
+    transition: border-color .15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .saved-item:hover { border-color: var(--border2); color: var(--text); }
+
+  footer {
+    margin-top: 20px;
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: .2em;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in { animation: fadeIn .3s ease forwards; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">AI Prompt Generator · Blur Photography</div>
+  <h1>Motion <span>Architect</span></h1>
+  <div class="subtitle">Night City · Intentional Blur · Art Photography</div>
+  <div class="counter" id="counter">— generated</div>
+</header>
+
+<div class="card">
+  <div class="empty-state" id="emptyState">
+    <span class="empty-icon">◎</span>
+    Press Generate to build a blur photography prompt.<br>
+    Lock any field to keep it on the next generate.
+  </div>
+  <div id="displayFields" class="fields animate-in" style="display:none"></div>
+  <div id="promptBox" style="display:none">
+    <hr class="divider">
+    <div class="prompt-label">Copy to image AI</div>
+    <div class="copy-hint">▼ Click to select all → Ctrl+C / Cmd+C</div>
+    <textarea class="prompt-textarea" id="finalPrompt" readonly onclick="this.select()"></textarea>
+    <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Copy Prompt</button>
+  </div>
+</div>
+
+<button class="generate-btn" onclick="generateAll()">GENERATE MOTION</button>
+<button class="save-btn" id="saveBtn" onclick="savePrompt()" style="display:none">SAVE THIS PROMPT</button>
+
+<div class="saved-section" id="savedSection" style="display:none">
+  <div class="saved-title">Saved Prompts</div>
+  <div id="savedList"></div>
+</div>
+
+<footer>MOTION ARCHITECT · BLUR AS LANGUAGE · NIGHT CITY</footer>
+
+<script>
+// ==================== DATA ====================
+
+const MOTION_TYPES = [
+  {
+    id: "walking",
+    label: "Subject Motion",
+    blurTag: "extreme motion blur on subject, background razor sharp, powerful directional blur smearing entire body and hair into long streaks, limbs fully dissolved into motion trails, clothing edges ghosted and smeared, face partially blurred mid-movement, high-contrast sharp background vs heavily blurred figure, strong kinetic energy",
+    shutterTag: "very slow shutter 1/8s–1/20s, heavy intentional subject motion blur, blur as dominant visual element"
+  },
+  {
+    id: "panning",
+    label: "Camera Pan",
+    blurTag: "aggressive panning shot, subject face and torso sharp, entire background destroyed into extreme horizontal motion streaks, city lights and signs abstracted to pure color bands, background unrecognizable, strong contrast between sharp subject and fully blurred surroundings",
+    shutterTag: "panning technique 1/30s–1/60s, extreme horizontal background blur, background fully abstracted into speed lines"
+  },
+  {
+    id: "longexposure",
+    label: "Long Exposure",
+    blurTag: "dramatic long exposure photography, dense luminous light trails filling background, figure ghosted or semi-transparent from movement, multiple exposure layering, neon and streetlight trails arcing across frame, city dissolved to rivers of light, magical and painterly quality",
+    shutterTag: "long exposure 4–15 seconds, dense light trails, luminous streaks dominant, figure ghosted by movement"
+  },
+  {
+    id: "handheld",
+    label: "Handheld Shake",
+    blurTag: "aggressive handheld camera shake, entire frame unstable, strong camera shake blur throughout image, raw and immediate, candid shaky framing with unsteady horizon, documentary urgency, grain overwhelming fine detail, scene felt rather than seen",
+    shutterTag: "heavy handheld shake 1/15s–1/30s, strong camera motion blur across frame, raw grainy snap aesthetic"
+  }
+];
+
+const MOTION_ANGLES = [
+  "extreme close-up on face, top of head cut off, jaw and cheekbone in frame",
+  "tight chest crop, collarbone to chin only, face partially out of frame above",
+  "side profile, sharp horizontal composition, subject facing frame edge",
+  "back of head and shoulder, subject walking away, city ahead",
+  "feet and lower legs only, ground-level, motion blur on steps",
+  "half-face composition, one eye sharp, other side cropped by frame edge",
+  "silhouette from behind, body centered, light source ahead of subject",
+  "shoulder and arm leading out of frame, face implied beyond edge",
+  "diagonal body crossing frame corner to corner, asymmetric composition",
+  "reflection in wet surface below, subject upside-down in puddle or glass",
+  "subject at far edge of frame, heavy negative space on opposite side",
+  "extreme low angle, shoes sharp, figure towering and abstract above",
+  "overhead bird's-eye, subject small against texture of ground",
+  "through a gap or crack, partial figure visible between walls or posts",
+  "waist-down only, legs mid-stride, concrete rushing below",
+  "face cut at eyes, just lips and jaw visible, cropped from top",
+  "hand and wrist foregrounded sharp, blurred torso behind",
+  "nape and back of neck, hair forward, city receding",
+  "extreme side-crop, 70% of frame negative space, subject sliver at edge",
+  "worm's eye up the body, coat hem and sky, face foreshortened above",
+  "dutch tilt 30 degrees, body diagonal against vertical architecture",
+  "subject seen through chain-link fence, diamond mesh overlay",
+  "torso only, head above frame and legs below, mid-body crop",
+  "mirror or glass pane, half reflection half direct, split reality",
+  "behind a shoulder of a passerby, subject in background sharp amid foreground blur"
+];
+
+const MOTION_FRAMING = [
+  "face partially cut by top edge of frame, raw and unposed",
+  "subject entering from frame edge, not yet fully visible",
+  "body split by vertical architectural element in foreground",
+  "extreme negative space, subject occupying one quarter of frame",
+  "double exposure aesthetic, two moments layered into one",
+  "subject blurred to near abstraction, only color and form remain",
+  "sharp eyes, everything below deliberately blurred to impressionism",
+  "head turned away, nape of neck and hair as primary subject",
+  "arms and hands as foreground, face in soft background",
+  "one sharp eye in lower third, rest of image motion and light",
+  "figure fragmentary — shoulder, coat edge, one shoe, hair",
+  "strong geometric shadow overlaid on figure, body and shadow merged",
+  "subject positioned at golden ratio intersection, asymmetric tension",
+  "figure partially obscured by foreground architectural shadow",
+  "lower third of body missing from frame, hovering upper body",
+  "face sliced by harsh diagonal shadow, half light half dark",
+  "extreme tunnel framing, subject tiny at end of long corridor",
+  "two-thirds of frame consumed by blurred foreground element",
+  "body partially dissolved into overexposed highlight area",
+  "mirrored reflection fragment showing different angle simultaneously",
+  "subject framed within a frame — window, doorway, signage cutout",
+  "motion blur sweeping subject toward one corner, emptiness behind",
+  "chromatic aberration splitting figure into color-offset ghosts",
+  "grain and noise overwhelming fine detail, impressionistic texture"
+];
+
+// ==================== STATE ====================
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+let lockedFields = {};
+let lastVals = {};
+let currentPrompt = "";
+let generated = 0;
+
+const isLocked = key => !!lockedFields[key];
+
+function toggleLock(key) {
+  lockedFields[key] = !lockedFields[key];
+  renderFields();
+}
+
+// ==================== REROLL ====================
+function reroll(key) {
+  if (isLocked(key)) return;
+  if (key === 'motionType') {
+    const mt = pick(MOTION_TYPES);
+    lastVals.motionType  = mt.id;
+    lastVals.motionLabel = mt.label;
+    lastVals.blurTag     = mt.blurTag;
+    lastVals.shutterTag  = mt.shutterTag;
+  } else if (key === 'angle') {
+    lastVals.angle = pick(MOTION_ANGLES);
+  } else if (key === 'framing') {
+    lastVals.framing = pick(MOTION_FRAMING);
+  }
+  buildPrompt();
+  renderFields();
+}
+
+// ==================== PROMPT ====================
+function buildPrompt() {
+  const v = lastVals;
+  const parts = [
+    "night time, urban street, anonymous city",
+    "a person",
+    v.angle   || null,
+    v.framing || null,
+    v.blurTag,
+    v.shutterTag,
+    "heavy film grain, high contrast, raw photographic energy",
+    "motion as artistic expression, intentional blur as aesthetic",
+    "art photography"
+  ];
+  currentPrompt = parts.filter(Boolean).join(", ");
+  const ta = document.getElementById("finalPrompt");
+  if (ta) ta.value = currentPrompt;
+}
+
+// ==================== RENDER ====================
+function renderFields() {
+  const v = lastVals;
+  const container = document.getElementById("displayFields");
+
+  const fields = [
+    { label: "Motion Type", value: v.motionLabel, color: "#fb923c", key: "motionType" },
+    { label: "Angle",       value: v.angle,       color: "#fdba74", key: "angle" },
+    { label: "Framing",     value: v.framing,     color: "#a78bfa", key: "framing" },
+  ];
+
+  container.innerHTML = fields.map(f => {
+    const locked = isLocked(f.key);
+    return `
+      <div class="field-row ${locked ? 'is-locked' : ''}">
+        <div class="field-label">${f.label}</div>
+        <div class="field-value" style="color:${f.color}">${f.value || "—"}</div>
+        <div class="field-actions">
+          <button class="lock-btn ${locked ? 'locked' : ''}" onclick="toggleLock('${f.key}')"
+                  title="${locked ? 'Unlock' : 'Lock'}">${locked ? '🔒' : '🔓'}</button>
+          <button class="reroll-btn" onclick="reroll('${f.key}')" title="Re-roll">🔄</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ==================== GENERATE ====================
+function generateAll() {
+  generated++;
+  document.getElementById("counter").textContent = `${generated} generated`;
+  document.getElementById("emptyState").style.display  = "none";
+  document.getElementById("displayFields").style.display = "flex";
+  document.getElementById("promptBox").style.display   = "block";
+  document.getElementById("saveBtn").style.display     = "block";
+
+  const preserved = {};
+  Object.keys(lockedFields).forEach(k => {
+    if (lockedFields[k] && lastVals[k] !== undefined) preserved[k] = lastVals[k];
+  });
+
+  const mt = pick(MOTION_TYPES);
+
+  lastVals = {
+    motionType:  preserved.motionType  || mt.id,
+    motionLabel: preserved.motionLabel || mt.label,
+    blurTag:     preserved.blurTag     || mt.blurTag,
+    shutterTag:  preserved.shutterTag  || mt.shutterTag,
+    angle:       preserved.angle       !== undefined ? preserved.angle   : pick(MOTION_ANGLES),
+    framing:     preserved.framing     !== undefined ? preserved.framing : pick(MOTION_FRAMING),
+  };
+
+  buildPrompt();
+  renderFields();
+}
+
+// ==================== COPY / SAVE ====================
+function copyPrompt() {
+  const ta = document.getElementById("finalPrompt");
+  if (!ta.value) return;
+  ta.select(); ta.setSelectionRange(0, 99999);
+  try { document.execCommand("copy"); } catch(e) {}
+  const btn = document.getElementById("copyBtn");
+  btn.textContent = "Copied ✓"; btn.classList.add("copied");
+  setTimeout(() => { btn.textContent = "Copy Prompt"; btn.classList.remove("copied"); }, 2000);
+}
+
+function savePrompt() {
+  if (!currentPrompt) return;
+  let saved = JSON.parse(localStorage.getItem("ma_v2") || "[]");
+  if (saved.includes(currentPrompt)) return;
+  saved.unshift(currentPrompt);
+  localStorage.setItem("ma_v2", JSON.stringify(saved.slice(0, 30)));
+  renderSaved();
+}
+
+function deleteSaved(i) {
+  let saved = JSON.parse(localStorage.getItem("ma_v2") || "[]");
+  saved.splice(i, 1);
+  localStorage.setItem("ma_v2", JSON.stringify(saved));
+  renderSaved();
+}
+
+function renderSaved() {
+  const saved = JSON.parse(localStorage.getItem("ma_v2") || "[]");
+  const section = document.getElementById("savedSection");
+  const list    = document.getElementById("savedList");
+  if (saved.length === 0) { section.style.display = "none"; return; }
+  section.style.display = "block";
+  list.innerHTML = saved.map((p, i) => `
+    <div class="saved-item">
+      <div style="flex:1;word-break:break-all" data-index="${i}">${p}</div>
+      <button onclick="deleteSaved(${i});event.stopImmediatePropagation()"
+              style="background:transparent;border:none;color:#ef4444;font-size:12px;cursor:pointer;padding:2px 6px;flex-shrink:0">✖</button>
+    </div>
+  `).join("");
+  document.querySelectorAll(".saved-item > div:first-child").forEach(el => {
+    el.onclick = () => {
+      const ta = document.getElementById("finalPrompt");
+      ta.value = saved[el.dataset.index];
+      ta.select();
+      try { document.execCommand("copy"); } catch(e) {}
+    };
+  });
+}
+
+renderSaved();
+</script>
+</body>
+</html>
