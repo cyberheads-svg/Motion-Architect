@@ -24,12 +24,12 @@
 }
 
 - { box-sizing: border-box; margin: 0; padding: 0; }
-  html { background: var(–bg); }
+  html { background: #080709; }
 
 body {
-background: var(–bg);
-color: var(–text);
-font-family: var(–mono);
+background: #080709;
+color: #ccc8d8;
+font-family: ‘DM Mono’, monospace;
 min-height: 100vh;
 display: flex;
 flex-direction: column;
@@ -55,12 +55,12 @@ header { text-align: center; margin-bottom: 40px; position: relative; z-index: 1
 font-size: 9px;
 letter-spacing: .5em;
 text-transform: uppercase;
-color: var(–muted);
+color: #5a5468;
 margin-bottom: 14px;
 }
 
 h1 {
-font-family: var(–serif);
+font-family: ‘DM Serif Display’, serif;
 font-style: italic;
 font-size: clamp(36px, 7vw, 58px);
 color: #fff;
@@ -69,11 +69,11 @@ line-height: 1;
 margin-bottom: 6px;
 }
 
-h1 span { color: var(–orange); }
+h1 span { color: #fb923c; }
 
 .subtitle {
 font-size: 10px;
-color: var(–muted);
+color: #5a5468;
 letter-spacing: .25em;
 text-transform: uppercase;
 margin-top: 10px;
@@ -81,7 +81,7 @@ margin-top: 10px;
 
 .counter {
 font-size: 9px;
-color: var(–dim);
+color: #231f2e;
 letter-spacing: .25em;
 margin-top: 8px;
 }
@@ -90,8 +90,8 @@ margin-top: 8px;
 .card {
 width: 100%;
 max-width: 660px;
-background: var(–panel);
-border: 1px solid var(–border);
+background: #0e0c11;
+border: 1px solid #1e1b25;
 padding: 28px;
 margin-bottom: 16px;
 position: relative;
@@ -101,7 +101,7 @@ z-index: 1;
 .empty-state {
 text-align: center;
 padding: 40px 0;
-color: var(–dim);
+color: #231f2e;
 font-size: 11px;
 letter-spacing: .06em;
 line-height: 2;
@@ -118,7 +118,7 @@ grid-template-columns: 110px 1fr auto;
 gap: 12px;
 align-items: start;
 padding: 12px 0;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid #1e1b25;
 }
 
 .field-row:last-child { border-bottom: none; }
@@ -128,12 +128,12 @@ border-bottom: 1px solid var(–border);
 font-size: 9px;
 letter-spacing: .15em;
 text-transform: uppercase;
-color: var(–muted);
+color: #5a5468;
 padding-top: 3px;
 }
 
 .field-value {
-font-family: var(–serif);
+font-family: ‘DM Serif Display’, serif;
 font-style: italic;
 font-size: 15px;
 line-height: 1.4;
@@ -144,7 +144,7 @@ line-height: 1.4;
 .reroll-btn {
 background: transparent;
 border: none;
-color: var(–muted);
+color: #5a5468;
 font-size: 13px;
 cursor: pointer;
 padding: 2px 6px;
@@ -152,12 +152,12 @@ line-height: 1;
 transition: color .15s;
 flex-shrink: 0;
 }
-.reroll-btn:hover { color: var(–orange); }
+.reroll-btn:hover { color: #fb923c; }
 
 .lock-btn {
 background: transparent;
 border: none;
-color: var(–dim);
+color: #231f2e;
 font-size: 12px;
 cursor: pointer;
 padding: 2px 3px;
@@ -165,21 +165,21 @@ line-height: 1;
 transition: all .15s;
 flex-shrink: 0;
 }
-.lock-btn:hover  { color: var(–muted); }
-.lock-btn.locked { color: var(–violet); text-shadow: 0 0 6px var(–violet); }
+.lock-btn:hover  { color: #5a5468; }
+.lock-btn.locked { color: #a78bfa; text-shadow: 0 0 6px #a78bfa; }
 
 /* prompt area */
-.divider { border: none; border-top: 1px solid var(–border); margin: 20px 0; }
+.divider { border: none; border-top: 1px solid #1e1b25; margin: 20px 0; }
 
 .prompt-label {
 font-size: 9px;
 letter-spacing: .2em;
 text-transform: uppercase;
-color: var(–muted);
+color: #5a5468;
 margin-bottom: 6px;
 }
 
-.copy-hint { font-size: 9px; color: var(–dim); letter-spacing: .1em; margin-bottom: 8px; }
+.copy-hint { font-size: 9px; color: #231f2e; letter-spacing: .1em; margin-bottom: 8px; }
 
 .var {
 color: #fb923c;
@@ -189,9 +189,9 @@ font-weight: 600;
 .prompt-textarea {
 width: 100%;
 background: #060508;
-border: 1px solid var(–border2);
-color: var(–muted);
-font-family: var(–mono);
+border: 1px solid #2e2a3a;
+color: #5a5468;
+font-family: ‘DM Mono’, monospace;
 font-size: 11px;
 line-height: 1.9;
 padding: 12px;
@@ -201,28 +201,28 @@ margin-bottom: 14px;
 word-break: break-word;
 cursor: pointer;
 }
-.prompt-textarea:focus { outline: none; border-color: var(–orange); }
+.prompt-textarea:focus { outline: none; border-color: #fb923c; }
 
 .copy-btn {
 background: transparent;
-border: 1px solid var(–border2);
-color: var(–muted);
+border: 1px solid #2e2a3a;
+color: #5a5468;
 padding: 8px 20px;
 font-size: 10px;
 letter-spacing: .2em;
 text-transform: uppercase;
 cursor: pointer;
-font-family: var(–mono);
+font-family: ‘DM Mono’, monospace;
 transition: all .2s;
 }
-.copy-btn:hover  { border-color: var(–orange); color: var(–orange); }
+.copy-btn:hover  { border-color: #fb923c; color: #fb923c; }
 .copy-btn.copied { border-color: #4ade80; color: #4ade80; }
 
 /* generate */
 .generate-btn {
 width: 100%;
 max-width: 660px;
-background: var(–orange);
+background: #fb923c;
 color: #000;
 font-weight: 700;
 border: none;
@@ -231,7 +231,7 @@ font-size: 12px;
 letter-spacing: .4em;
 text-transform: uppercase;
 cursor: pointer;
-font-family: var(–mono);
+font-family: ‘DM Mono’, monospace;
 transition: all .2s;
 margin-bottom: 12px;
 position: relative;
@@ -244,20 +244,20 @@ z-index: 1;
 width: 100%;
 max-width: 660px;
 background: transparent;
-border: 1px solid var(–border);
-color: var(–muted);
+border: 1px solid #1e1b25;
+color: #5a5468;
 padding: 12px;
 font-size: 10px;
 letter-spacing: .25em;
 text-transform: uppercase;
 cursor: pointer;
-font-family: var(–mono);
+font-family: ‘DM Mono’, monospace;
 transition: all .2s;
 margin-bottom: 40px;
 position: relative;
 z-index: 1;
 }
-.save-btn:hover { border-color: var(–border2); color: var(–text); }
+.save-btn:hover { border-color: #2e2a3a; color: #ccc8d8; }
 
 /* saved */
 .saved-section { width: 100%; max-width: 660px; position: relative; z-index: 1; }
@@ -266,19 +266,19 @@ z-index: 1;
 font-size: 10px;
 letter-spacing: .3em;
 text-transform: uppercase;
-color: var(–muted);
+color: #5a5468;
 margin-bottom: 14px;
 padding-bottom: 10px;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid #1e1b25;
 }
 
 .saved-item {
-background: var(–panel);
-border: 1px solid var(–border);
+background: #0e0c11;
+border: 1px solid #1e1b25;
 padding: 11px 14px;
 margin-bottom: 7px;
 font-size: 11px;
-color: var(–muted);
+color: #5a5468;
 line-height: 1.7;
 cursor: pointer;
 transition: border-color .15s;
@@ -287,12 +287,12 @@ justify-content: space-between;
 align-items: center;
 gap: 8px;
 }
-.saved-item:hover { border-color: var(–border2); color: var(–text); }
+.saved-item:hover { border-color: #2e2a3a; color: #ccc8d8; }
 
 footer {
 margin-top: 20px;
 font-size: 9px;
-color: var(–dim);
+color: #231f2e;
 letter-spacing: .2em;
 text-align: center;
 position: relative;
