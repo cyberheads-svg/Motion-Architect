@@ -37,11 +37,12 @@ align-items: center;
 padding: 48px 20px 80px;
 }
 
+/* grain overlay */
 body::before {
 content: ‘’;
 position: fixed;
 inset: 0;
-background-image: url(“data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMjAwIDIwMCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48ZmlsdGVyIGlkPSduJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC45JyBudW1PY3RhdmVzPSc0JyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI24pJyBvcGFjaXR5PScwLjA0Jy8+PC9zdmc+”);
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 200 200’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘0.04’/%3E%3C/svg%3E”);
 background-size: 180px 180px;
 pointer-events: none;
 z-index: 0;
@@ -85,6 +86,7 @@ letter-spacing: .25em;
 margin-top: 8px;
 }
 
+/* card */
 .card {
 width: 100%;
 max-width: 660px;
@@ -107,6 +109,7 @@ line-height: 2;
 
 .empty-icon { font-size: 28px; margin-bottom: 14px; opacity: .25; display: block; }
 
+/* field rows */
 .fields { display: flex; flex-direction: column; }
 
 .field-row {
@@ -165,6 +168,7 @@ flex-shrink: 0;
 .lock-btn:hover  { color: var(–muted); }
 .lock-btn.locked { color: var(–violet); text-shadow: 0 0 6px var(–violet); }
 
+/* prompt area */
 .divider { border: none; border-top: 1px solid var(–border); margin: 20px 0; }
 
 .prompt-label {
@@ -177,23 +181,27 @@ margin-bottom: 6px;
 
 .copy-hint { font-size: 9px; color: var(–dim); letter-spacing: .1em; margin-bottom: 8px; }
 
-.var { color: #fb923c; font-weight: 600; }
+.var {
+color: #fb923c;
+font-weight: 600;
+}
 
 .prompt-textarea {
 width: 100%;
 background: #060508;
 border: 1px solid var(–border2);
-color: #9d99a8;
+color: var(–muted);
 font-family: var(–mono);
 font-size: 11px;
 line-height: 1.9;
 padding: 12px;
+resize: vertical;
 min-height: 100px;
 margin-bottom: 14px;
 word-break: break-word;
 cursor: pointer;
-user-select: none;
 }
+.prompt-textarea:focus { outline: none; border-color: var(–orange); }
 
 .copy-btn {
 background: transparent;
@@ -210,6 +218,7 @@ transition: all .2s;
 .copy-btn:hover  { border-color: var(–orange); color: var(–orange); }
 .copy-btn.copied { border-color: #4ade80; color: #4ade80; }
 
+/* generate */
 .generate-btn {
 width: 100%;
 max-width: 660px;
@@ -250,6 +259,7 @@ z-index: 1;
 }
 .save-btn:hover { border-color: var(–border2); color: var(–text); }
 
+/* saved */
 .saved-section { width: 100%; max-width: 660px; position: relative; z-index: 1; }
 
 .saved-title {
@@ -316,8 +326,8 @@ to   { opacity: 1; transform: translateY(0); }
   <div id="promptBox" style="display:none">
     <hr class="divider">
     <div class="prompt-label">Base Prompt</div>
-    <div class="copy-hint">▼ Click prompt area or button to copy</div>
-    <div class="prompt-textarea" id="finalPrompt" onclick="copyPrompt()"></div>
+    <div class="copy-hint">▼ Click to select all → Ctrl+C / Cmd+C</div>
+    <div class="prompt-textarea" id="finalPrompt" contenteditable="true" onclick="document.execCommand('selectAll')"></div>
     <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Copy Prompt</button>
   </div>
 </div>
@@ -453,31 +463,24 @@ function reroll(key) {
 // ==================== PROMPT ====================
 function buildPrompt() {
   const v = lastVals;
-  const parts = [
+  const angleHTML   = v.angle     ? `<span style="color:#fdba74;font-weight:600">${v.angle}</span>`     : '';
+  const framingHTML = v.framing   ? `<span style="color:#a78bfa;font-weight:600">${v.framing}</span>`   : '';
+  const blurHTML    = v.blurTag   ? `<span style="color:#fb923c;font-weight:600">${v.blurTag}</span>`   : '';
+  const shutterHTML = v.shutterTag? `<span style="color:#fb923c;font-weight:600">${v.shutterTag}</span>`: '';
+
+  const html = [
     "night time, urban street, anonymous city",
     "a person",
-    v.angle   || null,
-    v.framing || null,
-    v.blurTag,
-    v.shutterTag,
+    angleHTML,
+    framingHTML,
+    blurHTML,
+    shutterHTML,
     "heavy film grain, high contrast, raw photographic energy",
     "motion as artistic expression, intentional blur as aesthetic",
     "art photography"
-  ].filter(Boolean);
+  ].filter(Boolean).join(", ");
 
-  currentPrompt = parts.join(", ");
-
-  // Build highlighted HTML: fixed parts plain, variable parts orange
-  const fixedBefore = "night time, urban street, anonymous city, a person";
-  const fixedAfter  = "heavy film grain, high contrast, raw photographic energy, motion as artistic expression, intentional blur as aesthetic, art photography";
-
-  let html = fixedBefore;
-  if (v.angle)      html += `, <span style="color:#fdba74;font-weight:600">${v.angle}</span>`;
-  if (v.framing)    html += `, <span style="color:#a78bfa;font-weight:600">${v.framing}</span>`;
-  if (v.blurTag)    html += `, <span style="color:#fb923c;font-weight:600">${v.blurTag}</span>`;
-  if (v.shutterTag) html += `, <span style="color:#fb923c;font-weight:600">${v.shutterTag}</span>`;
-  html += `, ${fixedAfter}`;
-
+  currentPrompt = html.replace(/<span[^>]*>|<\/span>/g, ''); // plain text version for save/copy
   const el = document.getElementById("finalPrompt");
   if (el) el.innerHTML = html;
 }
@@ -513,26 +516,24 @@ function renderFields() {
 function generateAll() {
   generated++;
   document.getElementById("counter").textContent = `${generated} generated`;
-  document.getElementById("emptyState").style.display   = "none";
+  document.getElementById("emptyState").style.display  = "none";
   document.getElementById("displayFields").style.display = "flex";
-  document.getElementById("promptBox").style.display    = "block";
-  document.getElementById("saveBtn").style.display      = "block";
+  document.getElementById("promptBox").style.display   = "block";
+  document.getElementById("saveBtn").style.display     = "block";
 
-  // ── FIX: ロックされているフィールドは lastVals から保持、それ以外のみ新規生成 ──
   const mt = pick(MOTION_TYPES);
 
-  // motionType がロックされている場合は既存の blurTag/shutterTag も維持
-  const keepMotion = isLocked('motionType');
+  const keepMotion  = isLocked('motionType');
   const keepAngle   = isLocked('angle');
   const keepFraming = isLocked('framing');
 
   lastVals = {
-    motionType:  keepMotion ? lastVals.motionType  : mt.id,
-    motionLabel: keepMotion ? lastVals.motionLabel : mt.label,
-    blurTag:     keepMotion ? lastVals.blurTag     : mt.blurTag,
-    shutterTag:  keepMotion ? lastVals.shutterTag  : mt.shutterTag,
-    angle:       keepAngle   ? lastVals.angle   : pick(MOTION_ANGLES),
-    framing:     keepFraming ? lastVals.framing : pick(MOTION_FRAMING),
+    motionType:  keepMotion  ? lastVals.motionType  : mt.id,
+    motionLabel: keepMotion  ? lastVals.motionLabel : mt.label,
+    blurTag:     keepMotion  ? lastVals.blurTag     : mt.blurTag,
+    shutterTag:  keepMotion  ? lastVals.shutterTag  : mt.shutterTag,
+    angle:       keepAngle   ? lastVals.angle       : pick(MOTION_ANGLES),
+    framing:     keepFraming ? lastVals.framing     : pick(MOTION_FRAMING),
   };
 
   buildPrompt();
@@ -541,20 +542,28 @@ function generateAll() {
 
 // ==================== COPY / SAVE ====================
 function copyPrompt() {
-  if (!currentPrompt) return;
-  navigator.clipboard.writeText(currentPrompt).then(() => {
+  const el = document.getElementById("finalPrompt");
+  if (!el) return;
+  const text = el.innerText || el.textContent;
+  if (!text) return;
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById("copyBtn");
-    btn.textContent = "Copied ✓"; btn.classList.add("copied");
+    btn.textContent = "Copied ✓";
+    btn.classList.add("copied");
     setTimeout(() => { btn.textContent = "Copy Prompt"; btn.classList.remove("copied"); }, 2000);
   }).catch(() => {
+    // Fallback
     const ta = document.createElement("textarea");
-    ta.value = currentPrompt;
+    ta.value = text;
     document.body.appendChild(ta);
     ta.select();
     document.execCommand("copy");
     document.body.removeChild(ta);
     const btn = document.getElementById("copyBtn");
-    btn.textContent = "Copied ✓"; btn.classList.add("copied");
+    btn.textContent = "Copied ✓";
+    btn.classList.add("copied");
     setTimeout(() => { btn.textContent = "Copy Prompt"; btn.classList.remove("copied"); }, 2000);
   });
 }
@@ -590,8 +599,12 @@ function renderSaved() {
   `).join("");
   document.querySelectorAll(".saved-item > div:first-child").forEach(el => {
     el.onclick = () => {
-      currentPrompt = saved[el.dataset.index];
-      document.getElementById("finalPrompt").innerText = currentPrompt;
+      const promptEl = document.getElementById("finalPrompt");
+      const plainText = saved[el.dataset.index];
+      promptEl.innerHTML = plainText.replace(/, /g, ', <span class="var">').replace(/, /g, '</span>, '); // rough highlight
+      // Better: just put plain text and let user edit
+      promptEl.innerText = plainText;
+      currentPrompt = plainText;
     };
   });
 }
