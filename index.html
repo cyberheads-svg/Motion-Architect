@@ -41,7 +41,7 @@ body::before {
 content: ‘’;
 position: fixed;
 inset: 0;
-background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 200 200’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+background-image: url(“data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMjAwIDIwMCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48ZmlsdGVyIGlkPSduJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC45JyBudW1PY3RhdmVzPSc0JyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI24pJyBvcGFjaXR5PScwLjA0Jy8+PC9zdmc+”);
 background-size: 180px 180px;
 pointer-events: none;
 z-index: 0;
@@ -183,18 +183,17 @@ margin-bottom: 6px;
 width: 100%;
 background: #060508;
 border: 1px solid var(–border2);
-color: var(–muted);
+color: #9d99a8;
 font-family: var(–mono);
 font-size: 11px;
 line-height: 1.9;
 padding: 12px;
-resize: vertical;
 min-height: 100px;
 margin-bottom: 14px;
 word-break: break-word;
 cursor: pointer;
+user-select: none;
 }
-.prompt-textarea:focus { outline: none; border-color: var(–orange); }
 
 .copy-btn {
 background: transparent;
@@ -317,8 +316,8 @@ to   { opacity: 1; transform: translateY(0); }
   <div id="promptBox" style="display:none">
     <hr class="divider">
     <div class="prompt-label">Base Prompt</div>
-    <div class="copy-hint">▼ Click to select all → Ctrl+C / Cmd+C</div>
-    <div class="prompt-textarea" id="finalPrompt" contenteditable="true" onclick="document.execCommand('selectAll')"></div>
+    <div class="copy-hint">▼ Click prompt area or button to copy</div>
+    <div class="prompt-textarea" id="finalPrompt" onclick="copyPrompt()"></div>
     <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Copy Prompt</button>
   </div>
 </div>
